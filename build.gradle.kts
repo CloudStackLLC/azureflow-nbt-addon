@@ -23,7 +23,6 @@ dependencies {
     compileOnly(fileTree("libs") {
         include("*.jar")
     })
-
 }
 
 tasks.test {
