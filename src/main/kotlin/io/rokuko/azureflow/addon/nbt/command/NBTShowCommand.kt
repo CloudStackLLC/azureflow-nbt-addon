@@ -66,9 +66,9 @@ fun formatListNBTMessage(sender: CommandSender, tagList: List<Any?>, level: Int)
     tagList.forEachIndexed { index, value ->
         val prefix = "  ".repeat(level)
         if (value is Map<*, *>) {
-            sender.sendMessage("$prefix&7$index: &f[".colorful())
+            sender.sendMessage("$prefix&7$index: &f{".colorful())
             formatMapNBTMessage(sender, value as? Map<String, Any?> ?: error("解析NBT出现异常"), level + 1)
-            sender.sendMessage("$prefix&f]".colorful())
+            sender.sendMessage("$prefix&f}".colorful())
         } else {
             sender.sendMessage("$prefix&7$index: &f$value".colorful())
         }
@@ -87,19 +87,27 @@ fun formatNBTMessage(sender: CommandSender, tag: CompoundTag, level: Int) {
             val strValue = tag.getString(key)
             var json = strValue.substring(5)
             var v: Any
+            val type: Int
             if (json.startsWith("[")) {
                 json = "{\"array\": $json}"
                 v = gson.fromJson(json, Map::class.java)["array"] as? List<*> ?: error("解析NBT出现异常")
+                type = 0
             } else {
                 v = gson.fromJson(json, Map::class.java) as? Map<String, *> ?: error("解析NBT出现异常")
+                type = 1
             }
-            sender.sendMessage("$prefix&7$key &b&ljson&7: &f{".colorful())
-            if (v is Map<*, *>) {
-                formatMapNBTMessage(sender, v as? Map<String, Any?> ?: error("解析NBT出现异常"), level + 1)
-            } else if (v is List<*>) {
-                formatListNBTMessage(sender, v, level + 1)
+            when(type) {
+                0 -> {
+                    sender.sendMessage("$prefix&7$key &b&ljson_array&7: &f[".colorful())
+                    formatListNBTMessage(sender, v as List<*>, level + 1)
+                    sender.sendMessage("$prefix&f]".colorful())
+                }
+                1 -> {
+                    sender.sendMessage("$prefix&7$key &b&ljson_object&7: &f{".colorful())
+                    formatMapNBTMessage(sender, v as? Map<String, Any?> ?: error("解析NBT出现异常"), level + 1)
+                    sender.sendMessage("$prefix&f}".colorful())
+                }
             }
-            sender.sendMessage("$prefix&f}".colorful())
         } else {
             sender.sendMessage("$prefix&7$key: &f$value".colorful())
         }
