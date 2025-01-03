@@ -1,0 +1,6 @@
+name: AzureFlow-NBTAddon
+main: io.rokuko.azureflow.addon.nbt.NBTAddon
+version: 1.0.0
+author: rokuko
+depend: [AzureFlow]
+api-version: 1.13
